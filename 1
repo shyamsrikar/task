@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Quiz Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+        }
+        #login-bg {
+            background-image: url('https://t4.ftcdn.net/jpg/04/39/13/37/360_F_439133763_FrLdhZsd5aGC23r9ATARuKJBr8ifZjIe.jpg');
+        }
+        #quiz-selection-bg {
+            background-image: url('https://t4.ftcdn.net/jpg/04/39/13/37/360_F_439133763_FrLdhZsd5aGC23r9ATARuKJBr8ifZjIe.jpg');
+        }
+        #quiz-section-bg {
+            background-image: url('https://t4.ftcdn.net/jpg/04/39/13/37/360_F_439133763_FrLdhZsd5aGC23r9ATARuKJBr8ifZjIe.jpg');
+        }
+        #app {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 450px;
+            z-index: 1;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        form label {
+            font-weight: bold;
+            margin: 10px 0 5px;
+        }
+        form input {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        form button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        .form-switch {
+            margin-top: 20px;
+        }
+        .form-switch a {
+            color: #007BFF;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .form-switch a:hover {
+            text-decoration: underline;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        #quiz-selection h2 {
+            color: #007BFF;
+        }
+        .quiz-box-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .quiz-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f9f9f9;
+            border: 2px solid #007BFF;
+            border-radius: 15px;
+            margin: 15px;
+            padding: 20px;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .quiz-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .quiz-box h3 {
+            margin: 0;
+            color: #007BFF;
+        }
+        .quiz-box p {
+            color: #555;
+            font-size: 14px;
+        }
+        .quiz-box button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .quiz-box button:hover {
+            background-color: #0056b3;
+        }
+        #quiz-section {
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+        /* Removed the background and box-shadow */
+        }
+        
+        #timer {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #question {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #options button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #options button:hover {
+            background-color: #0056b3;
+        }
+        #feedback {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #d9534f; /* Red color for feedback */
+        }
+        #score {
+            font-size: 20px;
+            margin-top: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-bg" class="background"></div>
+    <div id="quiz-selection-bg" class="background" style="display:none;"></div>
+    <div id="quiz-section-bg" class="background" style="display:none;"></div>
+
+    <div id="app">
+        <div id="auth-section">
+            <h2 id="auth-title">Login</h2>
+            <form id="login-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <button type="submit">Login</button>
+            </form>
+            <div class="form-switch">
+                <p>Don't have an account? <a id="show-signup">Sign up</a></p>
+            </div>
+        </div>
+        <div id="signup-section" style="display:none;">
+            <h2 id="signup-title">Sign Up</h2>
+            <form id="signup-form">
+                <label for="signup-username">Username:</label>
+                <input type="text" id="signup-username" required>
+                <label for="signup-password">Password:</label>
+                <input type="password" id="signup-password" required>
+                <button type="submit">Sign Up</button>
+            </form>
+            <div class="form-switch">
+                <p>Already have an account? <a id="show-login">Log in</a></p>
+            </div>
+        </div>
+        <div id="quiz-selection" style="display:none;">
+            <h2>Select Quiz</h2>
+            <div class="quiz-box-container">
+                <div class="quiz-box">
+                    <h3>Easy Quiz</h3>
+                    <p>Simple questions to get you started.</p>
+                    <button onclick="startQuiz('easy')">Start Easy Quiz</button>
+                </div>
+                <div class="quiz-box">
+                    <h3>Medium Quiz</h3>
+                    <p>A bit more challenging questions.</p>
+                    <button onclick="startQuiz('medium')">Start Medium Quiz</button>
+                </div>
+                <div class="quiz-box">
+                    <h3>Hard Quiz</h3>
+                    <p>For those who want a real challenge.</p>
+                    <button onclick="startQuiz('hard')">Start Hard Quiz</button>
+                </div>
+            </div>
+        </div>
+        <div id="quiz-section" style="display:none;">
+            <div id="timer"></div>
+            <div id="question"></div>
+            <div id="options"></div>
+            <div id="feedback"></div>
+            <div id="score"></div>
+        </div>
+    </div>
+    <script>
+        const users = JSON.parse(localStorage.getItem('users')) || {}; // Stores registered users
+
+        const quizzes = {
+            easy: {
+                questions: [
+                    { question: "What is 2+2?", options: ["3", "4", "5"], answer: "4" },
+                    { question: "What is the capital of France?", options: ["Berlin", "London", "Paris"], answer: "Paris" }
+                ],
+                time: 60 // 60 seconds
+            },
+            medium: {
+                questions: [
+                    { question: "What is 5*6?", options: ["30", "35", "40"], answer: "30" },
+                    { question: "What is the largest ocean?", options: ["Atlantic", "Indian", "Pacific"], answer: "Pacific" }
+                ],
+                time: 60 // 60 seconds
+            },
+            hard: {
+                questions: [
+                    { question: "What is the derivative of x^2?", options: ["2x", "x^2", "2"], answer: "2x" },
+                    { question: "What is the capital of Iceland?", options: ["Reykjavik", "Oslo", "Copenhagen"], answer: "Reykjavik" }
+                ],
+                time: 60 // 60 seconds
+            }
+        };
+
+        let currentQuiz = null;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval = null;
+
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (users[username] && users[username] === password) {
+                showSection('quiz-selection');
+            } else {
+                alert('Invalid login');
+            }
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const password = document.getElementById('signup-password').value;
+            if (users[username]) {
+                alert('Username already exists');
+            } else {
+                users[username] = password;
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Registration successful');
+                showSection('auth-section');
+            }
+        });
+
+        document.getElementById('show-signup').addEventListener('click', function () {
+            showSection('signup-section');
+        });
+
+        document.getElementById('show-login').addEventListener('click', function () {
+            showSection('auth-section');
+        });
+
+        function showSection(section) {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('signup-section').style.display = 'none';
+            document.getElementById('quiz-selection').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'none';
+
+            document.getElementById(section).style.display = 'block';
+
+            document.getElementById('login-bg').style.display = 'none';
+            document.getElementById('quiz-selection-bg').style.display = 'none';
+            document.getElementById('quiz-section-bg').style.display = 'none';
+
+            if (section === 'auth-section' || section === 'signup-section') {
+                document.getElementById('login-bg').style.display = 'block';
+            } else if (section === 'quiz-selection') {
+                document.getElementById('quiz-selection-bg').style.display = 'block';
+            } else if (section === 'quiz-section') {
+                document.getElementById('quiz-section-bg').style.display = 'block';
+            }
+        }
+
+        function startQuiz(difficulty) {
+            currentQuiz = quizzes[difficulty];
+            currentQuestionIndex = 0;
+            score = 0;
+            showSection('quiz-section');
+            showQuestion();
+            startTimer(currentQuiz.time);
+        }
+
+        function showQuestion() {
+            const question = currentQuiz.questions[currentQuestionIndex];
+            document.getElementById('question').textContent = question.question;
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedOption) {
+            const question = currentQuiz.questions[currentQuestionIndex];
+            if (selectedOption === question.answer) {
+                score++;
+                document.getElementById('feedback').textContent = 'Correct!';
+            } else {
+                document.getElementById('feedback').textContent = 'Wrong!';
+            }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuiz.questions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function startTimer(duration) {
+            let timeRemaining = duration;
+            document.getElementById('timer').textContent = Time left: ${timeRemaining}s;
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('timer').textContent = Time left: ${timeRemaining}s;
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function endQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('question').textContent = 'Quiz Over!';
+            document.getElementById('options').innerHTML = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('score').textContent = Your score: ${score}/${currentQuiz.questions.length};
+        }
+
+        showSection('auth-section');
+    </script>
+</body>
+</html>
